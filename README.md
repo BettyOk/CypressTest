@@ -1,4 +1,4 @@
-Cypress Testing with Cucumber BDD for BrowserStack E-commerce
+BrowserStack E-commerce Website Testing with Cypress Testing with Cucumber BDD
 
 Project Title and Description
 
