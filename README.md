@@ -40,196 +40,50 @@ Installation
 
     3. Cypress Configuration
 
-    Ensure the `cypress.config.js` is correctly configured for Cucumber and other plugins. Here is an example configuration:
+    Ensure the `cypress.config.js` is correctly configured for Cucumber and other plugins. 
 
-```javascript
-const { defineConfig } = require("cypress");
-const createBundler = require("@bahmutov/cypress-esbuild-preprocessor");
-const preprocessor = require("@badeball/cypress-cucumber-preprocessor");
-const createEsbuildPlugin = require("@badeball/cypress-cucumber-preprocessor/esbuild");
-const allureWriter = require("@shelex/cypress-allure-plugin/writer");
+Project Structure
 
-async function setupNodeEvents(on, config) {
-  await preprocessor.addCucumberPreprocessorPlugin(on, config);
+    Feature Files
 
-  on(
-    "file:preprocessor",
-    createBundler({
-      plugins: [createEsbuildPlugin.default(config)],
-    })
-  );
+    Located in `cypress-bdd-template-main/cypress/e2e/features/`:
+    `login.feature`
+    `shop.feature`
 
-  allureWriter(on, config);
+    Step Definitions
 
-  on('before:run', () => {
-    const mochaMultiReporters = require('mocha-multi-reporters');
-    mochaMultiReporters({
-      reporterEnabled: 'mocha-junit-reporter, mochawesome',
-      mochaJunitReporterReporterOptions: {
-        mochaFile: 'results/test-results.xml',
-      },
-      mochawesomeReporterOptions: {
-        reportDir: 'results',
-        quiet: true,
-        overwrite: false,
-      },
-    });
-  });
+    Located in `cypress-bdd-template-main/cypress/e2e/steps_definitions/`:
+    `loginTests.spec.js`
+    `shopTests.spec.js`
 
-  return config;
-}
+    Page Object Files
 
-module.exports = defineConfig({
-  e2e: {
-    setupNodeEvents,
-    specPattern: "cypress/e2e/features/*.feature",
-    baseUrl: "https://bstackdemo.com/",
-    chromeWebSecurity: false,
-    env: {
-      allureReuseAfterSpec: true,
-    },
-    retries: {
-      runMode: 1,
-      openMode: 1,
-    },
-    reporter: 'mocha-multi-reporters',
-    reporterOptions: {
-      reporterEnabled: 'mochawesome, mocha-junit-reporter',
-      mochaJunitReporterReporterOptions: {
-        mochaFile: 'results/test-results.xml',
-      },
-      mochawesomeReporterOptions: {
-        reportDir: 'results',
-        quiet: true,
-        overwrite: false,
-      },
-    },
-  },
-});
-```
+    Located in `cypress-bdd-template-main/cypress/pages/`: 
+    `loginPage.js`
+    `shopPage.js`
 
-## Project Structure
+Running the Tests
 
-### Feature Files
+    1. Execute Tests
 
-Located in `cypress/e2e/features/`. Example file `login.feature`:
+    Run Cypress tests using the following command:
 
-```gherkin
-Feature: Login functionality
+    ```bash
+    npx cypress run
+    ```
 
-Background: Users need to be present on the BrowserStack e-commerce app to log in
+    This will execute all feature files specified in the `specPattern` of the `cypress.config.js` and generate reports in the configured format.
 
-Given A user is at the BrowserStack e-commerce Login page
+    2. View Test Reports
 
-Scenario: A user logs in with invalid credentials
-  When The user enters invalid email, password and clicks the login button
-  Then The user should see an error message
+    - Mocha HTML Report: Located in the `results` directory, usually named `mochawesome.html`.
+    Open the HTML report in a web browser to review the detailed test results.
 
-Scenario: A user logs in with valid credentials
-  When The user enters valid email, password and clicks the login button
-  Then The user should be redirected to the landing page
-```
+Environment Configuration
 
-### Step Definitions
+    The necessary environment variables are set for the tests, such as `USERNAME`, `PASSWORD`, and `LOCKEDUSERNAME`. Location: cypress-bdd-template-main/cypress.env.json
 
-Located in `cypress/e2e/steps/`. Example file `loginSteps.js`:
+Continuous Integration
 
-```javascript
-import { Given, When, Then } from "@badeball/cypress-cucumber-preprocessor";
-import { loginPage } from "@pages/loginPage";
-import { shopPage } from "@pages/shopPage";
-
-Given('A user is at the BrowserStack e-commerce Login page', () => {
-  cy.visit('/signin');
-});
-
-When('The user enters invalid email, password and clicks the login button', () => {
-  loginPage.userInputsInvalidEmailAndPassword();
-});
-
-Then('The user should see an error message', () => {
-  loginPage.verifyUnsuccessfulLogin();
-});
-
-When('The user enters valid email, password and clicks the login button', () => {
-  loginPage.userInputsValidEmailAndPassword();
-});
-
-Then('The user should be redirected to the landing page', () => {
-  shopPage.verifySuccessfulLogin();
-});
-```
-
-### Page Object Files
-
-Define page elements and actions. Example file `loginPage.js`:
-
-```javascript
-class LoginPage {
-  pageElements = {
-    emailInputField: () => cy.get('username > .css-yk16xz-control > .css-1hwfws3'),
-    emailCategoryList: () => cy.get('.css-11unzgr'),
-    passwordInputField: () => cy.get('password > .css-yk16xz-control > .css-1hwfws3'),
-    emailPasswordList: () => cy.get('.css-1s9izoc'),
-    loginButton: () => cy.get('login-btn'),
-    invalidLoginCred: () => cy.contains('Your account has been locked.')
-  };
-
-  userInputsInvalidEmailAndPassword() {
-    this.pageElements.emailInputField().click();
-    this.pageElements.emailCategoryList().contains(Cypress.env('LOCKEDUSERNAME')).click();
-    this.pageElements.passwordInputField().click();
-    this.pageElements.emailPasswordList().contains(Cypress.env('PASSWORD')).click();
-    this.pageElements.loginButton().click();
-  }
-
-  userInputsValidEmailAndPassword() {
-    this.pageElements.emailInputField().click();
-    this.pageElements.emailCategoryList().contains(Cypress.env('USERNAME')).click();
-    this.pageElements.passwordInputField().click();
-    this.pageElements.emailPasswordList().contains(Cypress.env('PASSWORD')).click();
-    this.pageElements.loginButton().click();
-  }
-
-  verifyUnsuccessfulLogin() {
-    cy.url().should('contain', '/signin');
-    this.pageElements.invalidLoginCred().should('be.visible');
-    this.pageElements.loginButton().should('be.visible');
-    this.pageElements.emailInputField().should('be.visible');
-    this.pageElements.passwordInputField().should('be.visible');
-  }
-}
-
-export const loginPage = new LoginPage();
-```
-
-## Running the Tests
-
-### 1. Execute Tests
-
-Run Cypress tests using the following command:
-
-```bash
-npx cypress run
-```
-
-This will execute all feature files specified in the `specPattern` of your `cypress.config.js` and generate reports in the configured format.
-
-### 2. View Test Reports
-
-- **Mocha HTML Report**: Located in the `results` directory, usually named `mochawesome.html`.
-- **Allure Report**: Generated if Allure is configured, viewable through the Allure command line tool.
-
-Open the HTML report in your web browser to review the detailed test results.
-
-## Environment Configuration
-
-Ensure you have the necessary environment variables set for the tests, such as `USERNAME`, `PASSWORD`, and `LOCKEDUSERNAME`. You can set these in a `.env` file or directly in your environment configuration.
-
-## Continuous Integration
-
-This project is integrated with **GitHub Actions** for continuous integration. The GitHub repository is available at [https://github.com/BettyOk/CypressTest](https://github.com/BettyOk/CypressTest). CI configuration is located in the `.github/workflows` directory.
-
----
-
-Feel free to further customize the README as needed!
+    This project is integrated with GitHub Actions for continuous integration. The GitHub repository is available at [https://github.com/BettyOk/CypressTest]                        
+    CI configuration is located in the `.github/workflows` directory.
