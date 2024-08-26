@@ -2,11 +2,11 @@ Cypress Testing with Cucumber BDD for BrowserStack E-commerce
 
 Project Title and Description
 
-    BrowserStack E-commerce Website Test is a project that automates the testing of the BrowserStack e-commerce website using Cypress and Cucumber for behavior-driven development (BDD). This setup allows for writing and executing tests in Gherkin syntax, providing a robust framework for end-to-end testing of web applications.
+    BrowserStack E-commerce Website Test is a project that automates the testing of the BrowserStack e-commerce website using Cypress and Cucumber for behavior-driven development (BDD). This         setup allows for writing and executing tests in Gherkin syntax, providing a robust framework for end-to-end testing of web applications.
 
 Prerequisites
 
-    Before setting up the project, ensure the following tools are installed:
+    Before setting up the project, the following tools were installed:
 
     - Node.js: [Download and install Node.js](https://nodejs.org/)
     - Cypress: Install Cypress via npm
@@ -14,7 +14,7 @@ Prerequisites
 
 Installation
 
-    1. Clone or Create the Project
+    1. Clone the Project
 
     Clone the repository or create a new project folder.
 
@@ -31,7 +31,7 @@ Installation
     npm install
     ```
 
-    Ensure the following dependencies are included in your `package.json`:
+    The following dependencies are included in the `package.json`:
 
     - `cypress`
     - `@badeball/cypress-cucumber-preprocessor`
@@ -40,7 +40,7 @@ Installation
 
     3. Cypress Configuration
 
-    Ensure the `cypress.config.js` is correctly configured for Cucumber and other plugins. 
+    The `cypress.config.js` is correctly configured for Cucumber and other plugins. 
 
 Project Structure
 
